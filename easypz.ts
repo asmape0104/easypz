@@ -1,4 +1,4 @@
-function sign(number: number)
+export function sign(number: number)
 {
     if(number < 0)
         return -1;
@@ -7,7 +7,7 @@ function sign(number: number)
     return 0;
 }
 
-class EasyPZLoader
+export class EasyPZLoader
 {
     static DEFAULT_MODES = ["SIMPLE_PAN", "HOLD_ZOOM_IN", "CLICK_HOLD_ZOOM_OUT", "WHEEL_ZOOM_EASE", "PINCH_ZOOM", "DBLCLICK_ZOOM_IN", "DBLRIGHTCLICK_ZOOM_OUT"];
     private easyPzElements: {
@@ -163,7 +163,7 @@ class EasyPZLoader
 
 
 
-class EzEventEmitter<T>
+export class EzEventEmitter<T>
 {
     subscribers : ((value: T) => void)[] = [];
     public emit(value: T)
@@ -179,7 +179,7 @@ class EzEventEmitter<T>
     }
 }
 
-class EzPromise<T>
+export class EzPromise<T>
 {
     private onDone: (T) => void;
     
@@ -202,7 +202,7 @@ class EzPromise<T>
     }
 }
 
-class EasyPzZoomData
+export class EasyPzZoomData
 {
     x: number;
     y: number;
@@ -212,19 +212,19 @@ class EasyPzZoomData
     targetY?: number;
 }
 
-class EasyPzPanData
+export class EasyPzPanData
 {
     x: number;
     y: number;
 }
 
-class EasyPzCallbackData
+export class EasyPzCallbackData
 {
     event;
     modeName;
 }
 
-class EasyPzMode
+export class EasyPzMode
 {
     ids: string[];
     active?: boolean;
@@ -239,7 +239,7 @@ class EasyPzMode
     onRightClick?: (eventData: EasyPzCallbackData) => void;
 }
 
-class EasyPZ
+export class EasyPZ
 {
     private static MOUSE_EVENT_TYPES = {'MOUSE_DOWN': 0, 'MOUSE_MOVE': 1, 'MOUSE_UP': 2};
     
@@ -1856,7 +1856,7 @@ EasyPZ.addMode((easypz: EasyPZ) =>
 });
 
 
-const easyPZLoader = new EasyPZLoader();
-easyPZLoader.checkElements();
-window.addEventListener('load', function() { easyPZLoader.checkElements(); });
-window.setInterval(function() { easyPZLoader.checkElements(); }, 500);
+// const easyPZLoader = new EasyPZLoader();
+// easyPZLoader.checkElements();
+// window.addEventListener('load', function() { easyPZLoader.checkElements(); });
+// window.setInterval(function() { easyPZLoader.checkElements(); }, 500);

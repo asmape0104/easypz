@@ -446,8 +446,8 @@ export class EasyPZ
         if(this.options.bounds)
         {
             let scale = transformBeforeScale ? this.totalTransform.scale - 1 : 1 - 1 / this.totalTransform.scale;
-            let scaleTopLeft = 1 / Math.max(scale, 0);
-            let scaleBotRight = Math.min(scale, 0);
+            let scaleTopLeft = -1 * Math.max(scale, 0);
+            let scaleBotRight = -1 * Math.min(scale, 0);
             
             if(this.totalTransform.translateX < scaleTopLeft * this.width + this.options.bounds.left)
             {
@@ -480,12 +480,52 @@ export class EasyPZ
             {
                 const element = els[i];
                 const transform = element.getAttribute('transform') || '';
-
-                const transformObj = this.createTransformObject(transform);
-
-                const classList = (els[i].getAttribute('class') || '').split(' ');
-
-                element.setAttribute('transform', this.createTransformString(transformObj, classList.indexOf('epz-nozoom') != -1));
+                let transformData = EasyPZ.parseTransform(transform);
+                
+                let translateX = this.totalTransform.translateX;
+                let translateY = this.totalTransform.translateY;
+                let scaleX = this.totalTransform.scale;
+                let scaleY = this.totalTransform.scale;
+                
+                if(transformData)
+                {
+                    const originalScaleX = transformData.scaleX / this.lastAppliedTransform.scale;
+                    const originalScaleY = transformData.scaleY / this.lastAppliedTransform.scale;
+                    const originalTranslate = { x: 0, y: 0 };
+                    const translateBeforeScaleFactorX = transformData.translateBeforeScale ? 1 : originalScaleX;
+                    const translateBeforeScaleFactorY = transformData.translateBeforeScale ? 1 : originalScaleY;
+                    
+                    originalTranslate.x = (transformData.translateX - this.lastAppliedTransform.translateX / originalScaleX) * translateBeforeScaleFactorX;
+                    originalTranslate.y = (transformData.translateY - this.lastAppliedTransform.translateY / originalScaleY) * translateBeforeScaleFactorY;
+                    // console.log(originalTranslate.x, transformData.translateX , this.lastAppliedTransform.translateX, originalScale, this.lastAppliedTransform.scale, this.lastAppliedTransform.lastScale, transformData.translateBeforeScale);
+                    
+                    scaleX *= originalScaleX;
+                    scaleY *= originalScaleY;
+                    
+                    translateX = translateX / originalScaleX + originalTranslate.x / originalScaleX;
+                    translateY = translateY / originalScaleY + originalTranslate.y / originalScaleY;
+                }
+                else
+                {
+                    console.log('what is wrong', transform);
+                }
+                
+                let transformString = '';
+    
+                if(transformData.rotate) {
+                    transformString += 'rotate(' + transformData.rotate + ')';
+                }
+                if(transformData.skewX) {
+                    transformString += 'skewX(' + transformData.skewX + ')';
+                }
+                if(transformData.skewY) {
+                    transformString += 'skewY(' + transformData.skewY + ')';
+                }
+    
+                transformString += 'scale(' + scaleX + ',' + scaleY + ')';
+                transformString += 'translate(' + translateX + ',' + translateY + ')';
+                
+                element.setAttribute('transform', transformString);
             }
             
             this.lastAppliedTransform.translateX = this.totalTransform.translateX;
@@ -550,80 +590,6 @@ export class EasyPZ
         }
         
         return transformObject;
-    }
-
-    private createTransformObject(transform: string) {
-        let transformData = EasyPZ.parseTransform(transform);
-                
-        let translateX = this.totalTransform.translateX;
-        let translateY = this.totalTransform.translateY;
-        let scaleX = this.totalTransform.scale;
-        let scaleY = this.totalTransform.scale;
-        
-        if(transformData)
-        {
-            const originalScaleX = transformData.scaleX / this.lastAppliedTransform.scale;
-            const originalScaleY = transformData.scaleY / this.lastAppliedTransform.scale;
-            const originalTranslate = { x: 0, y: 0 };
-            const translateBeforeScaleFactorX = transformData.translateBeforeScale ? 1 : originalScaleX;
-            const translateBeforeScaleFactorY = transformData.translateBeforeScale ? 1 : originalScaleY;
-            
-            originalTranslate.x = (transformData.translateX - this.lastAppliedTransform.translateX / originalScaleX) * translateBeforeScaleFactorX;
-            originalTranslate.y = (transformData.translateY - this.lastAppliedTransform.translateY / originalScaleY) * translateBeforeScaleFactorY;
-            // console.log(originalTranslate.x, transformData.translateX , this.lastAppliedTransform.translateX, originalScale, this.lastAppliedTransform.scale, this.lastAppliedTransform.lastScale, transformData.translateBeforeScale);
-            
-            scaleX *= originalScaleX;
-            scaleY *= originalScaleY;
-            
-            translateX = translateX / originalScaleX + originalTranslate.x / originalScaleX;
-            translateY = translateY / originalScaleY + originalTranslate.y / originalScaleY;
-        }
-        else
-        {
-            console.log('what is wrong', transform);
-        }
-
-        Object.assign(transformData, {
-            scaleX, scaleY, translateX, translateY
-        })
-        
-        return transformData;
-    }
-
-    private createTransformString(transform: string, nozoom: boolean): string;
-    private createTransformString(transform: {
-        scaleX: number,
-        scaleY: number,
-        translateX: number,
-        translateY: number,
-        translateBeforeScale: boolean,
-        rotate: string,
-        skewX: string,
-        skewY: string
-    },
-    nozoom: boolean): string;
-    private createTransformString(transform: any, nozoom: boolean) {
-        const transformData = typeof transform === "string" ? this.createTransformObject(transform) : transform;
-
-        let transformString = '';
-
-        if(transformData.rotate) {
-            transformString += 'rotate(' + transformData.rotate + ')';
-        }
-        if(transformData.skewX) {
-            transformString += 'skewX(' + transformData.skewX + ')';
-        }
-        if(transformData.skewY) {
-            transformString += 'skewY(' + transformData.skewY + ')';
-        }
-
-        transformString += 'scale(' + transformData.scaleX + ',' + transformData.scaleY + ')';
-        transformString += 'translate(' + transformData.translateX + ',' + transformData.translateY + ')';
-        if (nozoom) {
-            transformString += 'scale(' + (1/transformData.scaleX) + ',' + (1/transformData.scaleY) + ')';
-        }
-
-        return transformString;
     }
     
     private ngAfterViewInit()
@@ -1354,8 +1320,8 @@ EasyPZ.addMode((easypz: EasyPZ) =>
     const mode = {
         ids: ['WHEEL_ZOOM', 'WHEEL_ZOOM_MOMENTUM', 'WHEEL_ZOOM_EASE'],
         settings: {
-            zoomInScaleChange: 0.95,
-            zoomOutScaleChange: 1.05,
+            zoomInScaleChange: 0.8,
+            zoomOutScaleChange: 1.2,
             momentumSpeedPercentage: 0.01,
             momentumFriction: 0.000004,
             easeDuration: 300

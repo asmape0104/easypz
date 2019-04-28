@@ -345,8 +345,12 @@ var EasyPZ = /** @class */ (function () {
             for (var i = 0; i < els.length; i++) {
                 var element = els[i];
                 var transform = element.getAttribute('transform') || '';
-                var transformString = this.createTransformString(transform);
-                element.setAttribute('transform', transformString);
+                var transformObj = this.createTransformObject(transform);
+                var classList = (els[i].getAttribute('class') || '').split(' ');
+                if (classList.indexOf('epz-nozoom') != -1) {
+                    transformObj.scaleX = transformObj.scaleY = 1;
+                }
+                element.setAttribute('transform', this.createTransformString(transformObj));
             }
             this.lastAppliedTransform.translateX = this.totalTransform.translateX;
             this.lastAppliedTransform.translateY = this.totalTransform.translateY;

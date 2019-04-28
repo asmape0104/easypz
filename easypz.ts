@@ -1320,8 +1320,8 @@ EasyPZ.addMode((easypz: EasyPZ) =>
     const mode = {
         ids: ['WHEEL_ZOOM', 'WHEEL_ZOOM_MOMENTUM', 'WHEEL_ZOOM_EASE'],
         settings: {
-            zoomInScaleChange: 0.8,
-            zoomOutScaleChange: 1.2,
+            zoomInScaleChange: 0.95,
+            zoomOutScaleChange: 1.05,
             momentumSpeedPercentage: 0.01,
             momentumFriction: 0.000004,
             easeDuration: 300

@@ -135,6 +135,8 @@ export declare class EasyPZ {
     private lastAppliedTransform;
     private applyTransformation;
     private static parseTransform;
+    private createTransformObject;
+    private createTransformString;
     private ngAfterViewInit;
     private setDimensions;
     private updateMousePosition;

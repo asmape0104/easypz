@@ -345,40 +345,7 @@ var EasyPZ = /** @class */ (function () {
             for (var i = 0; i < els.length; i++) {
                 var element = els[i];
                 var transform = element.getAttribute('transform') || '';
-                var transformData = EasyPZ.parseTransform(transform);
-                var translateX = this.totalTransform.translateX;
-                var translateY = this.totalTransform.translateY;
-                var scaleX = this.totalTransform.scale;
-                var scaleY = this.totalTransform.scale;
-                if (transformData) {
-                    var originalScaleX = transformData.scaleX / this.lastAppliedTransform.scale;
-                    var originalScaleY = transformData.scaleY / this.lastAppliedTransform.scale;
-                    var originalTranslate = { x: 0, y: 0 };
-                    var translateBeforeScaleFactorX = transformData.translateBeforeScale ? 1 : originalScaleX;
-                    var translateBeforeScaleFactorY = transformData.translateBeforeScale ? 1 : originalScaleY;
-                    originalTranslate.x = (transformData.translateX - this.lastAppliedTransform.translateX / originalScaleX) * translateBeforeScaleFactorX;
-                    originalTranslate.y = (transformData.translateY - this.lastAppliedTransform.translateY / originalScaleY) * translateBeforeScaleFactorY;
-                    // console.log(originalTranslate.x, transformData.translateX , this.lastAppliedTransform.translateX, originalScale, this.lastAppliedTransform.scale, this.lastAppliedTransform.lastScale, transformData.translateBeforeScale);
-                    scaleX *= originalScaleX;
-                    scaleY *= originalScaleY;
-                    translateX = translateX / originalScaleX + originalTranslate.x / originalScaleX;
-                    translateY = translateY / originalScaleY + originalTranslate.y / originalScaleY;
-                }
-                else {
-                    console.log('what is wrong', transform);
-                }
-                var transformString = '';
-                if (transformData.rotate) {
-                    transformString += 'rotate(' + transformData.rotate + ')';
-                }
-                if (transformData.skewX) {
-                    transformString += 'skewX(' + transformData.skewX + ')';
-                }
-                if (transformData.skewY) {
-                    transformString += 'skewY(' + transformData.skewY + ')';
-                }
-                transformString += 'scale(' + scaleX + ',' + scaleY + ')';
-                transformString += 'translate(' + translateX + ',' + translateY + ')';
+                var transformString = this.createTransformString(transform);
                 element.setAttribute('transform', transformString);
             }
             this.lastAppliedTransform.translateX = this.totalTransform.translateX;
@@ -425,6 +392,50 @@ var EasyPZ = /** @class */ (function () {
             }
         }
         return transformObject;
+    };
+    EasyPZ.prototype.createTransformObject = function (transform) {
+        var transformData = EasyPZ.parseTransform(transform);
+        var translateX = this.totalTransform.translateX;
+        var translateY = this.totalTransform.translateY;
+        var scaleX = this.totalTransform.scale;
+        var scaleY = this.totalTransform.scale;
+        if (transformData) {
+            var originalScaleX = transformData.scaleX / this.lastAppliedTransform.scale;
+            var originalScaleY = transformData.scaleY / this.lastAppliedTransform.scale;
+            var originalTranslate = { x: 0, y: 0 };
+            var translateBeforeScaleFactorX = transformData.translateBeforeScale ? 1 : originalScaleX;
+            var translateBeforeScaleFactorY = transformData.translateBeforeScale ? 1 : originalScaleY;
+            originalTranslate.x = (transformData.translateX - this.lastAppliedTransform.translateX / originalScaleX) * translateBeforeScaleFactorX;
+            originalTranslate.y = (transformData.translateY - this.lastAppliedTransform.translateY / originalScaleY) * translateBeforeScaleFactorY;
+            // console.log(originalTranslate.x, transformData.translateX , this.lastAppliedTransform.translateX, originalScale, this.lastAppliedTransform.scale, this.lastAppliedTransform.lastScale, transformData.translateBeforeScale);
+            scaleX *= originalScaleX;
+            scaleY *= originalScaleY;
+            translateX = translateX / originalScaleX + originalTranslate.x / originalScaleX;
+            translateY = translateY / originalScaleY + originalTranslate.y / originalScaleY;
+        }
+        else {
+            console.log('what is wrong', transform);
+        }
+        Object.assign(transformData, {
+            scaleX: scaleX, scaleY: scaleY, translateX: translateX, translateY: translateY
+        });
+        return transformData;
+    };
+    EasyPZ.prototype.createTransformString = function (transform) {
+        var transformData = this.createTransformObject(transform);
+        var transformString = '';
+        if (transformData.rotate) {
+            transformString += 'rotate(' + transformData.rotate + ')';
+        }
+        if (transformData.skewX) {
+            transformString += 'skewX(' + transformData.skewX + ')';
+        }
+        if (transformData.skewY) {
+            transformString += 'skewY(' + transformData.skewY + ')';
+        }
+        transformString += 'scale(' + transformData.scaleX + ',' + transformData.scaleY + ')';
+        transformString += 'translate(' + transformData.translateX + ',' + transformData.translateY + ')';
+        return transformString;
     };
     EasyPZ.prototype.ngAfterViewInit = function () {
         this.setDimensions();
@@ -949,8 +960,8 @@ EasyPZ.addMode(function (easypz) {
     var mode = {
         ids: ['WHEEL_ZOOM', 'WHEEL_ZOOM_MOMENTUM', 'WHEEL_ZOOM_EASE'],
         settings: {
-            zoomInScaleChange: 0.8,
-            zoomOutScaleChange: 1.2,
+            zoomInScaleChange: 0.95,
+            zoomOutScaleChange: 1.05,
             momentumSpeedPercentage: 0.01,
             momentumFriction: 0.000004,
             easeDuration: 300

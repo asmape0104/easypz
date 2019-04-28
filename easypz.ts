@@ -481,9 +481,15 @@ export class EasyPZ
                 const element = els[i];
                 const transform = element.getAttribute('transform') || '';
 
-                const transformString = this.createTransformString(transform);
+                const transformObj = this.createTransformObject(transform);
 
-                element.setAttribute('transform', transformString);
+                const classList = (els[i].getAttribute('class') || '').split(' ');
+
+                if (classList.indexOf('epz-nozoom') != -1) {
+                    transformObj.scaleX = transformObj.scaleY = 1;
+                }
+
+                element.setAttribute('transform', this.createTransformString(transformObj));
             }
             
             this.lastAppliedTransform.translateX = this.totalTransform.translateX;

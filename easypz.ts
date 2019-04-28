@@ -448,8 +448,8 @@ export class EasyPZ
             let scale = transformBeforeScale ? this.totalTransform.scale - 1 : 1 - 1 / this.totalTransform.scale;
             // let scaleTopLeft = -1 * Math.max(scale, 0);
             // let scaleBotRight = -1 * Math.min(scale, 0);
-            let scaleTopLeft = -1;
-            let scaleBotRight = -1
+            let scaleTopLeft = 0;
+            let scaleBotRight = 0;
             
             if(this.totalTransform.translateX < scaleTopLeft * this.width + this.options.bounds.left)
             {

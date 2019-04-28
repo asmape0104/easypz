@@ -422,7 +422,7 @@ var EasyPZ = /** @class */ (function () {
         return transformData;
     };
     EasyPZ.prototype.createTransformString = function (transform) {
-        var transformData = this.createTransformObject(transform);
+        var transformData = typeof transform === "string" ? this.createTransformObject(transform) : transform;
         var transformString = '';
         if (transformData.rotate) {
             transformString += 'rotate(' + transformData.rotate + ')';

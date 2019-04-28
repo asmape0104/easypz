@@ -588,8 +588,19 @@ export class EasyPZ
         return transformData;
     }
 
-    private createTransformString(transform: string) {
-        const transformData = this.createTransformObject(transform);
+    private createTransformString(transform: string): string;
+    private createTransformString(transform: {
+        scaleX: number,
+        scaleY: number,
+        translateX: number,
+        translateY: number,
+        translateBeforeScale: boolean,
+        rotate: string,
+        skewX: string,
+        skewY: string
+    }): string;
+    private createTransformString(transform: any) {
+        const transformData = typeof transform === "string" ? this.createTransformObject(transform) : transform;
 
         let transformString = '';
 

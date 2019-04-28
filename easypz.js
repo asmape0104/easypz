@@ -347,10 +347,7 @@ var EasyPZ = /** @class */ (function () {
                 var transform = element.getAttribute('transform') || '';
                 var transformObj = this.createTransformObject(transform);
                 var classList = (els[i].getAttribute('class') || '').split(' ');
-                if (classList.indexOf('epz-nozoom') != -1) {
-                    transformObj.scaleX = transformObj.scaleY = 1;
-                }
-                element.setAttribute('transform', this.createTransformString(transformObj));
+                element.setAttribute('transform', this.createTransformString(transformObj, classList.indexOf('epz-nozoom') != -1));
             }
             this.lastAppliedTransform.translateX = this.totalTransform.translateX;
             this.lastAppliedTransform.translateY = this.totalTransform.translateY;
@@ -425,7 +422,7 @@ var EasyPZ = /** @class */ (function () {
         });
         return transformData;
     };
-    EasyPZ.prototype.createTransformString = function (transform) {
+    EasyPZ.prototype.createTransformString = function (transform, nozoom) {
         var transformData = typeof transform === "string" ? this.createTransformObject(transform) : transform;
         var transformString = '';
         if (transformData.rotate) {
@@ -439,6 +436,9 @@ var EasyPZ = /** @class */ (function () {
         }
         transformString += 'scale(' + transformData.scaleX + ',' + transformData.scaleY + ')';
         transformString += 'translate(' + transformData.translateX + ',' + transformData.translateY + ')';
+        if (nozoom) {
+            transformString += 'scale(' + (1 / transformData.scaleX) + ',' + (1 / transformData.scaleY) + ')';
+        }
         return transformString;
     };
     EasyPZ.prototype.ngAfterViewInit = function () {

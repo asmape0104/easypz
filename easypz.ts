@@ -485,11 +485,7 @@ export class EasyPZ
 
                 const classList = (els[i].getAttribute('class') || '').split(' ');
 
-                if (classList.indexOf('epz-nozoom') != -1) {
-                    transformObj.scaleX = transformObj.scaleY = 1;
-                }
-
-                element.setAttribute('transform', this.createTransformString(transformObj));
+                element.setAttribute('transform', this.createTransformString(transformObj, classList.indexOf('epz-nozoom') != -1));
             }
             
             this.lastAppliedTransform.translateX = this.totalTransform.translateX;
@@ -594,7 +590,7 @@ export class EasyPZ
         return transformData;
     }
 
-    private createTransformString(transform: string): string;
+    private createTransformString(transform: string, nozoom: boolean): string;
     private createTransformString(transform: {
         scaleX: number,
         scaleY: number,
@@ -604,8 +600,9 @@ export class EasyPZ
         rotate: string,
         skewX: string,
         skewY: string
-    }): string;
-    private createTransformString(transform: any) {
+    },
+    nozoom: boolean): string;
+    private createTransformString(transform: any, nozoom: boolean) {
         const transformData = typeof transform === "string" ? this.createTransformObject(transform) : transform;
 
         let transformString = '';
@@ -622,6 +619,9 @@ export class EasyPZ
 
         transformString += 'scale(' + transformData.scaleX + ',' + transformData.scaleY + ')';
         transformString += 'translate(' + transformData.translateX + ',' + transformData.translateY + ')';
+        if (nozoom) {
+            transformString += 'scale(' + (1/transformData.scaleX) + ',' + (1/transformData.scaleY) + ')';
+        }
 
         return transformString;
     }

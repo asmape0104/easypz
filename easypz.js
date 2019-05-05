@@ -323,8 +323,8 @@ var EasyPZ = /** @class */ (function () {
     EasyPZ.prototype.ensureTransformWithinBounds = function (transformBeforeScale) {
         if (this.options.bounds) {
             var scale = transformBeforeScale ? this.totalTransform.scale - 1 : 1 - 1 / this.totalTransform.scale;
-            var scaleTopLeft = -1 * Math.max(scale, 0);
-            var scaleBotRight = -1 * Math.min(scale, 0);
+            var scaleTopLeft = -1 * scale; //-1 * Math.max(scale, 0);
+            var scaleBotRight = 0; //-1 * Math.min(scale, 0);
             if (this.totalTransform.translateX < scaleTopLeft * this.width + this.options.bounds.left) {
                 this.totalTransform.translateX = scaleTopLeft * this.width + this.options.bounds.left;
             }

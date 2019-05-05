@@ -9,7 +9,7 @@
     "uglify-js": "^3.1.5"
   },
   "scripts": {
-    "prepublish_removed": "npm run build",
+    "prepublish": "npm run build",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

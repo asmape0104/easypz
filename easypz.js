@@ -289,8 +289,8 @@ var EasyPZ = /** @class */ (function () {
             _this.totalTransform.translateX += panData.x / scale;
             _this.totalTransform.translateY += panData.y / scale;
             _this.ensureTransformWithinBounds(transformBeforeScale);
-            _this.totalTransform.rotate.cx += beforeX - _this.totalTransform.translateX;
-            _this.totalTransform.rotate.cy += beforeY - _this.totalTransform.translateY;
+            _this.totalTransform.rotate.cx += (beforeX - _this.totalTransform.translateX) * scale;
+            _this.totalTransform.rotate.cy += (beforeY - _this.totalTransform.translateY) * scale;
             onPanned(panData, _this.totalTransform);
             onTransform(_this.totalTransform);
         });

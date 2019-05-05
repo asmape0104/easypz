@@ -392,8 +392,8 @@ export class EasyPZ
             
             this.ensureTransformWithinBounds(transformBeforeScale);
 
-            this.totalTransform.rotate.cx += beforeX - this.totalTransform.translateX;
-            this.totalTransform.rotate.cy += beforeY - this.totalTransform.translateY;
+            this.totalTransform.rotate.cx += (beforeX - this.totalTransform.translateX) * scale;
+            this.totalTransform.rotate.cy += (beforeY - this.totalTransform.translateY) * scale;
 
             onPanned(panData, this.totalTransform);
             onTransform(this.totalTransform);

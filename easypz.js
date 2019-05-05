@@ -284,14 +284,14 @@ var EasyPZ = /** @class */ (function () {
         var _this = this;
         this.onPanned.subscribe(function (panData) {
             if (transformBeforeScale) {
-                _this.totalTransform.rotate.cx += panData.x;
-                _this.totalTransform.rotate.cy += panData.y;
+                _this.totalTransform.rotate.cx += -panData.x;
+                _this.totalTransform.rotate.cy += -panData.y;
                 _this.totalTransform.translateX += panData.x;
                 _this.totalTransform.translateY += panData.y;
             }
             else {
-                _this.totalTransform.rotate.cx += panData.x;
-                _this.totalTransform.rotate.cy += panData.y;
+                _this.totalTransform.rotate.cx += -panData.x;
+                _this.totalTransform.rotate.cy += -panData.y;
                 _this.totalTransform.translateX += panData.x / _this.totalTransform.scale;
                 _this.totalTransform.translateY += panData.y / _this.totalTransform.scale;
             }

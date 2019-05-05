@@ -383,16 +383,16 @@ export class EasyPZ
         {
             if(transformBeforeScale)
             {
-                this.totalTransform.rotate.cx += panData.x;
-                this.totalTransform.rotate.cy += panData.y;
+                this.totalTransform.rotate.cx += -panData.x;
+                this.totalTransform.rotate.cy += -panData.y;
 
                 this.totalTransform.translateX += panData.x;
                 this.totalTransform.translateY += panData.y;
             }
             else
             {
-                this.totalTransform.rotate.cx += panData.x;
-                this.totalTransform.rotate.cy += panData.y;
+                this.totalTransform.rotate.cx += -panData.x;
+                this.totalTransform.rotate.cy += -panData.y;
 
                 this.totalTransform.translateX += panData.x / this.totalTransform.scale;
                 this.totalTransform.translateY += panData.y / this.totalTransform.scale;

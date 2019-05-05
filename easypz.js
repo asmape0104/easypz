@@ -283,19 +283,14 @@ var EasyPZ = /** @class */ (function () {
     EasyPZ.prototype.trackTotalTransformation = function (onTransform, onPanned, onZoomed, onRotated, transformBeforeScale) {
         var _this = this;
         this.onPanned.subscribe(function (panData) {
-            if (transformBeforeScale) {
-                _this.totalTransform.rotate.cx += -panData.x;
-                _this.totalTransform.rotate.cy += -panData.y;
-                _this.totalTransform.translateX += panData.x;
-                _this.totalTransform.translateY += panData.y;
-            }
-            else {
-                _this.totalTransform.rotate.cx += -panData.x;
-                _this.totalTransform.rotate.cy += -panData.y;
-                _this.totalTransform.translateX += panData.x / _this.totalTransform.scale;
-                _this.totalTransform.translateY += panData.y / _this.totalTransform.scale;
-            }
+            var beforeX = _this.totalTransform.translateX;
+            var beforeY = _this.totalTransform.translateY;
+            var scale = transformBeforeScale ? 1 : _this.totalTransform.scale;
+            _this.totalTransform.translateX += panData.x / scale;
+            _this.totalTransform.translateY += panData.y / scale;
             _this.ensureTransformWithinBounds(transformBeforeScale);
+            _this.totalTransform.rotate.cx += beforeX - _this.totalTransform.translateX;
+            _this.totalTransform.rotate.cy += beforeY - _this.totalTransform.translateY;
             onPanned(panData, _this.totalTransform);
             onTransform(_this.totalTransform);
         });

@@ -165,6 +165,12 @@ var EasyPzPanData = /** @class */ (function () {
     return EasyPzPanData;
 }());
 exports.EasyPzPanData = EasyPzPanData;
+var EasyPzRotateData = /** @class */ (function () {
+    function EasyPzRotateData() {
+    }
+    return EasyPzRotateData;
+}());
+exports.EasyPzRotateData = EasyPzRotateData;
 var EasyPzCallbackData = /** @class */ (function () {
     function EasyPzCallbackData() {
     }
@@ -178,13 +184,14 @@ var EasyPzMode = /** @class */ (function () {
 }());
 exports.EasyPzMode = EasyPzMode;
 var EasyPZ = /** @class */ (function () {
-    function EasyPZ(el, onTransform, options, enabledModes, modeSettings, onPanned, onZoomed, onResetAbsoluteScale, applyTransformTo) {
+    function EasyPZ(el, onTransform, options, enabledModes, modeSettings, onPanned, onZoomed, onResetAbsoluteScale, applyTransformTo, onRotated) {
         if (onTransform === void 0) { onTransform = function () { }; }
         if (modeSettings === void 0) { modeSettings = {}; }
         if (onPanned === void 0) { onPanned = function () { }; }
         if (onZoomed === void 0) { onZoomed = function () { }; }
         if (onResetAbsoluteScale === void 0) { onResetAbsoluteScale = function () { }; }
         if (applyTransformTo === void 0) { applyTransformTo = ''; }
+        if (onRotated === void 0) { onRotated = function () { }; }
         this.applyTransformTo = applyTransformTo;
         this.lastMouseDownTime = 0;
         this.mouseDownTime = 0;
@@ -204,22 +211,23 @@ var EasyPZ = /** @class */ (function () {
         this.enabledModes = ["SIMPLE_PAN", "HOLD_ZOOM_IN", "CLICK_HOLD_ZOOM_OUT", "WHEEL_ZOOM", "PINCH_ZOOM", "DBLCLICK_ZOOM_IN", "DBLRIGHTCLICK_ZOOM_OUT"];
         this.onPanned = new EzEventEmitter();
         this.onZoomed = new EzEventEmitter();
+        this.onRotated = new EzEventEmitter();
         this.resetAbsoluteScale = new EzEventEmitter();
-        this.totalTransform = { scale: 1, translateX: 0, translateY: 0 };
-        this.totalTransformSnapshot = { scale: 1, translateX: 0, translateY: 0 };
+        this.totalTransform = { scale: 1, translateX: 0, translateY: 0, rotate: { deg: 0, cx: 0, cy: 0 } };
+        this.totalTransformSnapshot = { scale: 1, translateX: 0, translateY: 0, rotate: { deg: 0, cx: 0, cy: 0 } };
         this.options = {
             minScale: 0.25,
             maxScale: 12,
             bounds: { top: -150, right: 150, bottom: 150, left: -150 }
         };
-        this.lastAppliedTransform = { translateX: 0, translateY: 0, scale: 1 };
+        this.lastAppliedTransform = { translateX: 0, translateY: 0, scale: 1, rotate: { deg: 0, cx: 0, cy: 0 } };
         this.modes = [];
         this.el = el instanceof Node ? el : el.node();
-        this.setSettings(onTransform, options, enabledModes, modeSettings, onPanned, onZoomed, onResetAbsoluteScale, applyTransformTo);
+        this.setSettings(onTransform, options, enabledModes, modeSettings, onPanned, onZoomed, onResetAbsoluteScale, applyTransformTo, onRotated);
         this.ngAfterViewInit();
         this.setupHostListeners();
     }
-    EasyPZ.prototype.setSettings = function (onTransform, options, enabledModes, modeSettings, onPanned, onZoomed, onResetAbsoluteScale, applyTransformTo) {
+    EasyPZ.prototype.setSettings = function (onTransform, options, enabledModes, modeSettings, onPanned, onZoomed, onResetAbsoluteScale, applyTransformTo, onRotated) {
         var _this = this;
         if (onTransform === void 0) { onTransform = function () { }; }
         if (modeSettings === void 0) { modeSettings = {}; }
@@ -227,6 +235,7 @@ var EasyPZ = /** @class */ (function () {
         if (onZoomed === void 0) { onZoomed = function () { }; }
         if (onResetAbsoluteScale === void 0) { onResetAbsoluteScale = function () { }; }
         if (applyTransformTo === void 0) { applyTransformTo = ''; }
+        if (onRotated === void 0) { onRotated = function () { }; }
         if (enabledModes) {
             this.enabledModes = enabledModes;
         }
@@ -237,6 +246,7 @@ var EasyPZ = /** @class */ (function () {
         // Reset listeners.
         this.onPanned = new EzEventEmitter();
         this.onZoomed = new EzEventEmitter();
+        this.onRotated = new EzEventEmitter();
         this.resetAbsoluteScale = new EzEventEmitter();
         this.applyModeSettings(modeSettings);
         if (options) {
@@ -251,20 +261,26 @@ var EasyPZ = /** @class */ (function () {
             }
         }
         var transformBeforeScale = !applyTransformTo;
-        this.trackTotalTransformation(onTransform, onPanned, onZoomed, transformBeforeScale);
+        this.trackTotalTransformation(onTransform, onPanned, onZoomed, onRotated, transformBeforeScale);
         this.resetAbsoluteScale.subscribe(function () { return _this.saveCurrentTransformation(onResetAbsoluteScale); });
         this.onPanned.subscribe(function () { return _this.applyTransformation(); });
         this.onZoomed.subscribe(function () { return _this.applyTransformation(); });
+        this.onRotated.subscribe(function () { return _this.applyTransformation(); });
     };
     EasyPZ.prototype.saveCurrentTransformation = function (onResetAbsoluteScale) {
         this.totalTransformSnapshot = {
             scale: this.totalTransform.scale,
             translateX: this.totalTransform.translateX,
-            translateY: this.totalTransform.translateY
+            translateY: this.totalTransform.translateY,
+            rotate: {
+                deg: this.totalTransform.rotate.deg,
+                cx: this.totalTransform.rotate.cx,
+                cy: this.totalTransform.rotate.cy
+            }
         };
         onResetAbsoluteScale();
     };
-    EasyPZ.prototype.trackTotalTransformation = function (onTransform, onPanned, onZoomed, transformBeforeScale) {
+    EasyPZ.prototype.trackTotalTransformation = function (onTransform, onPanned, onZoomed, onRotated, transformBeforeScale) {
         var _this = this;
         this.onPanned.subscribe(function (panData) {
             if (transformBeforeScale) {
@@ -310,6 +326,10 @@ var EasyPZ = /** @class */ (function () {
             onZoomed(zoomData, _this.totalTransform);
             onTransform(_this.totalTransform);
         });
+        this.onRotated.subscribe(function (rotateData) {
+            onRotated(rotateData, _this.totalTransform);
+            onTransform(_this.totalTransform);
+        });
     };
     EasyPZ.prototype.getScaleWithinLimits = function (scale) {
         if (!isNaN(this.options.minScale) && this.options.minScale !== null) {
@@ -350,6 +370,7 @@ var EasyPZ = /** @class */ (function () {
                 var translateY = this.totalTransform.translateY;
                 var scaleX = this.totalTransform.scale;
                 var scaleY = this.totalTransform.scale;
+                var rotate = this.totalTransform.rotate;
                 if (transformData) {
                     var originalScaleX = transformData.scaleX / this.lastAppliedTransform.scale;
                     var originalScaleY = transformData.scaleY / this.lastAppliedTransform.scale;
@@ -368,9 +389,6 @@ var EasyPZ = /** @class */ (function () {
                     console.log('what is wrong', transform);
                 }
                 var transformString = '';
-                if (transformData.rotate) {
-                    transformString += 'rotate(' + transformData.rotate + ')';
-                }
                 if (transformData.skewX) {
                     transformString += 'skewX(' + transformData.skewX + ')';
                 }
@@ -379,16 +397,18 @@ var EasyPZ = /** @class */ (function () {
                 }
                 transformString += 'scale(' + scaleX + ',' + scaleY + ')';
                 transformString += 'translate(' + translateX + ',' + translateY + ')';
+                transformString += 'rotate(' + rotate.deg + ' ' + rotate.cx + ' ' + rotate.cy + ')';
                 element.setAttribute('transform', transformString);
             }
             this.lastAppliedTransform.translateX = this.totalTransform.translateX;
             this.lastAppliedTransform.translateY = this.totalTransform.translateY;
             this.lastAppliedTransform.scale = this.totalTransform.scale;
+            this.lastAppliedTransform.rotate = this.totalTransform.rotate;
         }
     };
     EasyPZ.parseTransform = function (transform) {
         var transformObject = { translateX: 0, translateY: 0, scaleX: 1, scaleY: 1, translateBeforeScale: false,
-            rotate: '', skewX: '', skewY: '' };
+            rotate: { deg: 0, cx: 0, cy: 0 }, skewX: '', skewY: '' };
         if (transform) {
             transform = transform.replace(/(\r\n|\n|\r)/gm, '');
             var translate = /\s*translate\(([-0-9.]+)[, ]([-0-9.]+)\)/.exec(transform);
@@ -411,9 +431,13 @@ var EasyPZ = /** @class */ (function () {
             if (translateScale) {
                 transformObject.translateBeforeScale = true;
             }
-            var rotate = /\s*rotate\(([-0-9., ]*)\)/.exec(transform);
+            var rotate = /\s*rotate\(([-0-9.]+)([, ]([-0-9.]+) ([-0-9.]+))?\)/.exec(transform);
             if (rotate) {
-                transformObject.rotate = rotate[1];
+                transformObject.rotate = {
+                    deg: parseFloat(rotate[1]),
+                    cx: rotate[3] ? parseFloat(rotate[3]) : 0,
+                    cy: rotate[4] ? parseFloat(rotate[4]) : 0
+                };
             }
             var skewX = /\s*skewX\(([-0-9., ]*)\)/.exec(transform);
             if (skewX) {

@@ -218,6 +218,12 @@ export class EasyPzPanData
     y: number;
 }
 
+export class EasyPzRotateData {
+    deg: number;
+    cx: number;
+    cy: number;
+}
+
 export class EasyPzCallbackData
 {
     event;
@@ -266,10 +272,11 @@ export class EasyPZ
     private enabledModes = ["SIMPLE_PAN", "HOLD_ZOOM_IN", "CLICK_HOLD_ZOOM_OUT", "WHEEL_ZOOM", "PINCH_ZOOM", "DBLCLICK_ZOOM_IN", "DBLRIGHTCLICK_ZOOM_OUT"];
     public onPanned = new EzEventEmitter<EasyPzPanData>();
     public onZoomed = new EzEventEmitter<EasyPzZoomData>();
+    public onRotated = new EzEventEmitter<EasyPzRotateData>();
     public resetAbsoluteScale = new EzEventEmitter<void>();
     
-    private totalTransform = { scale: 1, translateX: 0, translateY: 0};
-    private totalTransformSnapshot = { scale: 1, translateX: 0, translateY: 0};
+    private totalTransform = { scale: 1, translateX: 0, translateY: 0, rotate: {deg: 0, cx: 0, cy: 0}};
+    private totalTransformSnapshot = { scale: 1, translateX: 0, translateY: 0, rotate: {deg: 0, cx: 0, cy: 0}};
     public el: HTMLElement;
     private options = {
         minScale: 0.25,
@@ -289,11 +296,12 @@ export class EasyPZ
                 onPanned: (panData: EasyPzPanData, transform: { scale: number, translateX: number, translateY: number}) => void = () => {},
                 onZoomed: (zoomData: EasyPzZoomData, transform: { scale: number, translateX: number, translateY: number}) => void = () => {},
                 onResetAbsoluteScale: () => void = () => {},
-                private applyTransformTo: string = '')
+                private applyTransformTo: string = '',
+                onRotated: (rotateData: EasyPzRotateData, transform: { scale: number, translateX: number, translateY: number}) => void = () => {})
     {
         this.el = el instanceof Node ? <HTMLElement> el : el.node();
         
-        this.setSettings(onTransform, options, enabledModes, modeSettings, onPanned, onZoomed, onResetAbsoluteScale, applyTransformTo);
+        this.setSettings(onTransform, options, enabledModes, modeSettings, onPanned, onZoomed, onResetAbsoluteScale, applyTransformTo, onRotated);
         
         this.ngAfterViewInit();
         this.setupHostListeners();
@@ -310,7 +318,8 @@ export class EasyPZ
                        onPanned: (panData: EasyPzPanData, transform: { scale: number, translateX: number, translateY: number}) => void = () => {},
                        onZoomed: (zoomData: EasyPzZoomData, transform: { scale: number, translateX: number, translateY: number}) => void = () => {},
                        onResetAbsoluteScale: () => void = () => {},
-                       applyTransformTo: string = '') {
+                       applyTransformTo: string = '',
+                       onRotated: (rotateData: EasyPzRotateData, transform: { scale: number, translateX: number, translateY: number}) => void = () => {}) {
         if(enabledModes)
         {
             this.enabledModes = enabledModes;
@@ -324,6 +333,7 @@ export class EasyPZ
         // Reset listeners.
         this.onPanned = new EzEventEmitter<EasyPzPanData>();
         this.onZoomed = new EzEventEmitter<EasyPzZoomData>();
+        this.onRotated = new EzEventEmitter<EasyPzRotateData>();
         this.resetAbsoluteScale = new EzEventEmitter<void>();
         
         this.applyModeSettings(modeSettings);
@@ -344,10 +354,11 @@ export class EasyPZ
             }
         }
         let transformBeforeScale = !applyTransformTo;
-        this.trackTotalTransformation(onTransform, onPanned, onZoomed, transformBeforeScale);
+        this.trackTotalTransformation(onTransform, onPanned, onZoomed, onRotated, transformBeforeScale);
         this.resetAbsoluteScale.subscribe(() => this.saveCurrentTransformation(onResetAbsoluteScale));
         this.onPanned.subscribe(() => this.applyTransformation());
         this.onZoomed.subscribe(() => this.applyTransformation());
+        this.onRotated.subscribe(() => this.applyTransformation());
     }
     
     private saveCurrentTransformation(onResetAbsoluteScale)
@@ -355,13 +366,18 @@ export class EasyPZ
         this.totalTransformSnapshot = {
             scale: this.totalTransform.scale,
             translateX: this.totalTransform.translateX,
-            translateY: this.totalTransform.translateY
+            translateY: this.totalTransform.translateY,
+            rotate: {
+                deg: this.totalTransform.rotate.deg,
+                cx: this.totalTransform.rotate.cx,
+                cy: this.totalTransform.rotate.cy
+            }
         };
         
         onResetAbsoluteScale();
     }
     
-    private trackTotalTransformation(onTransform, onPanned, onZoomed, transformBeforeScale)
+    private trackTotalTransformation(onTransform, onPanned, onZoomed, onRotated, transformBeforeScale)
     {
         this.onPanned.subscribe((panData: EasyPzPanData) =>
         {
@@ -425,6 +441,11 @@ export class EasyPZ
             onZoomed(zoomData, this.totalTransform);
             onTransform(this.totalTransform);
         });
+
+        this.onRotated.subscribe((rotateData: EasyPzRotateData) => {
+            onRotated(rotateData, this.totalTransform);
+            onTransform(this.totalTransform);
+        })
     }
     
     private getScaleWithinLimits(scale: number) : number
@@ -468,7 +489,7 @@ export class EasyPZ
         }
     }
     
-    private lastAppliedTransform = { translateX: 0, translateY: 0, scale: 1 };
+    private lastAppliedTransform = { translateX: 0, translateY: 0, scale: 1, rotate: {deg: 0, cx: 0, cy: 0}};
     
     private applyTransformation()
     {
@@ -486,6 +507,7 @@ export class EasyPZ
                 let translateY = this.totalTransform.translateY;
                 let scaleX = this.totalTransform.scale;
                 let scaleY = this.totalTransform.scale;
+                let rotate = this.totalTransform.rotate;
                 
                 if(transformData)
                 {
@@ -512,9 +534,6 @@ export class EasyPZ
                 
                 let transformString = '';
     
-                if(transformData.rotate) {
-                    transformString += 'rotate(' + transformData.rotate + ')';
-                }
                 if(transformData.skewX) {
                     transformString += 'skewX(' + transformData.skewX + ')';
                 }
@@ -524,6 +543,7 @@ export class EasyPZ
     
                 transformString += 'scale(' + scaleX + ',' + scaleY + ')';
                 transformString += 'translate(' + translateX + ',' + translateY + ')';
+                transformString += 'rotate(' + rotate.deg + ' ' + rotate.cx + ' ' + rotate.cy + ')';
                 
                 element.setAttribute('transform', transformString);
             }
@@ -531,13 +551,14 @@ export class EasyPZ
             this.lastAppliedTransform.translateX = this.totalTransform.translateX;
             this.lastAppliedTransform.translateY = this.totalTransform.translateY;
             this.lastAppliedTransform.scale = this.totalTransform.scale;
+            this.lastAppliedTransform.rotate = this.totalTransform.rotate;
         }
     }
     
     private static parseTransform(transform: string)
     {
         const transformObject = { translateX: 0, translateY: 0, scaleX: 1, scaleY: 1, translateBeforeScale: false,
-            rotate: '', skewX: '', skewY: ''};
+            rotate: {deg: 0, cx: 0, cy: 0}, skewX: '', skewY: ''};
         
         if(transform)
         {
@@ -571,10 +592,14 @@ export class EasyPZ
                 transformObject.translateBeforeScale = true;
             }
             
-            const rotate  = /\s*rotate\(([-0-9., ]*)\)/.exec(transform);
+            const rotate  = /\s*rotate\(([-0-9.]+)([, ]([-0-9.]+) ([-0-9.]+))?\)/.exec(transform);
             if(rotate)
             {
-                transformObject.rotate = rotate[1];
+                transformObject.rotate = {
+                    deg: parseFloat(rotate[1]),
+                    cx: rotate[3] ? parseFloat(rotate[3]) : 0,
+                    cy: rotate[4] ? parseFloat(rotate[4]) : 0
+                };
             }
             
             const skewX  = /\s*skewX\(([-0-9., ]*)\)/.exec(transform);

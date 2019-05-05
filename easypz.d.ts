@@ -28,6 +28,11 @@ export declare class EasyPzPanData {
     x: number;
     y: number;
 }
+export declare class EasyPzRotateData {
+    deg: number;
+    cx: number;
+    cy: number;
+}
 export declare class EasyPzCallbackData {
     event: any;
     modeName: any;
@@ -69,6 +74,7 @@ export declare class EasyPZ {
     private enabledModes;
     onPanned: EzEventEmitter<EasyPzPanData>;
     onZoomed: EzEventEmitter<EasyPzZoomData>;
+    onRotated: EzEventEmitter<EasyPzRotateData>;
     resetAbsoluteScale: EzEventEmitter<void>;
     private totalTransform;
     private totalTransformSnapshot;
@@ -101,7 +107,11 @@ export declare class EasyPZ {
         scale: number;
         translateX: number;
         translateY: number;
-    }) => void, onResetAbsoluteScale?: () => void, applyTransformTo?: string);
+    }) => void, onResetAbsoluteScale?: () => void, applyTransformTo?: string, onRotated?: (rotateData: EasyPzRotateData, transform: {
+        scale: number;
+        translateX: number;
+        translateY: number;
+    }) => void);
     setSettings(onTransform?: (transform: {
         scale: number;
         translateX: number;
@@ -127,7 +137,11 @@ export declare class EasyPZ {
         scale: number;
         translateX: number;
         translateY: number;
-    }) => void, onResetAbsoluteScale?: () => void, applyTransformTo?: string): void;
+    }) => void, onResetAbsoluteScale?: () => void, applyTransformTo?: string, onRotated?: (rotateData: EasyPzRotateData, transform: {
+        scale: number;
+        translateX: number;
+        translateY: number;
+    }) => void): void;
     private saveCurrentTransformation;
     private trackTotalTransformation;
     private getScaleWithinLimits;

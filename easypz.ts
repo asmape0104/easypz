@@ -382,13 +382,15 @@ export class EasyPZ
         this.onPanned.subscribe((panData: EasyPzPanData) =>
         {
 
-            let beforeX = this.totalTransform.translateX;
-            let beforeY = this.totalTransform.translateY;
-
             let scale = transformBeforeScale ? 1 : this.totalTransform.scale;
 
-            this.totalTransform.translateX += panData.x / scale;
-            this.totalTransform.translateY += panData.y / scale;
+            let xdiff = panData.x / scale;
+            let ydiff = panData.y / scale;
+            let c = Math.cos(-this.totalTransform.rotate.deg * Math.PI / 180)
+            let s = Math.sin(-this.totalTransform.rotate.deg * Math.PI / 180)
+
+            this.totalTransform.translateX += xdiff * c - ydiff * s;
+            this.totalTransform.translateY += xdiff * s + ydiff * c;
             
             this.ensureTransformWithinBounds(transformBeforeScale);
 

@@ -219,9 +219,9 @@ export class EasyPzPanData
 }
 
 export class EasyPzRotateData {
-    deg: number;
-    cx: number;
-    cy: number;
+    deg?: number;
+    cx?: number;
+    cy?: number;
 }
 
 export class EasyPzCallbackData
@@ -392,8 +392,8 @@ export class EasyPZ
             
             this.ensureTransformWithinBounds(transformBeforeScale);
 
-            this.totalTransform.rotate.cx += -this.totalTransform.translateX * scale + this.width/2;
-            this.totalTransform.rotate.cy += -this.totalTransform.translateY * scale + this.height/2;
+            this.totalTransform.rotate.cx = -this.totalTransform.translateX * scale + this.width/2;
+            this.totalTransform.rotate.cy = -this.totalTransform.translateY * scale + this.height/2;
 
             onPanned(panData, this.totalTransform);
             onTransform(this.totalTransform);
@@ -439,14 +439,18 @@ export class EasyPZ
             
             this.ensureTransformWithinBounds(transformBeforeScale);
 
-            this.totalTransform.rotate.cx += -this.totalTransform.translateX * this.totalTransform.scale + this.width/2;
-            this.totalTransform.rotate.cy += -this.totalTransform.translateY * this.totalTransform.scale + this.height/2;
+            this.totalTransform.rotate.cx = -this.totalTransform.translateX * this.totalTransform.scale + this.width/2;
+            this.totalTransform.rotate.cy = -this.totalTransform.translateY * this.totalTransform.scale + this.height/2;
             
             onZoomed(zoomData, this.totalTransform);
             onTransform(this.totalTransform);
         });
 
-        this.onRotated.subscribe((rotateData: EasyPzRotateData) => {
+        this.onRotated.subscribe((rotateData: EasyPzRotateData = {}) => {
+            let degdiff = rotateData.deg || 0;
+
+            this.totalTransform.rotate.deg = (this.totalTransform.rotate.deg + degdiff + 360) % 360;
+
             onRotated(rotateData, this.totalTransform);
             onTransform(this.totalTransform);
         })

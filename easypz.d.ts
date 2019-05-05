@@ -29,9 +29,9 @@ export declare class EasyPzPanData {
     y: number;
 }
 export declare class EasyPzRotateData {
-    deg: number;
-    cx: number;
-    cy: number;
+    deg?: number;
+    cx?: number;
+    cy?: number;
 }
 export declare class EasyPzCallbackData {
     event: any;

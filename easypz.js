@@ -289,8 +289,8 @@ var EasyPZ = /** @class */ (function () {
             _this.totalTransform.translateX += panData.x / scale;
             _this.totalTransform.translateY += panData.y / scale;
             _this.ensureTransformWithinBounds(transformBeforeScale);
-            _this.totalTransform.rotate.cx = -_this.totalTransform.translateX * scale + _this.width / 2;
-            _this.totalTransform.rotate.cy = -_this.totalTransform.translateY * scale + _this.height / 2;
+            _this.totalTransform.rotate.cx = -_this.totalTransform.translateX / scale + _this.width / 2;
+            _this.totalTransform.rotate.cy = -_this.totalTransform.translateY / scale + _this.height / 2;
             onPanned(panData, _this.totalTransform);
             onTransform(_this.totalTransform);
         });
@@ -322,8 +322,8 @@ var EasyPZ = /** @class */ (function () {
                 }
             }
             _this.ensureTransformWithinBounds(transformBeforeScale);
-            _this.totalTransform.rotate.cx = -_this.totalTransform.translateX * _this.totalTransform.scale + _this.width / 2;
-            _this.totalTransform.rotate.cy = -_this.totalTransform.translateY * _this.totalTransform.scale + _this.height / 2;
+            _this.totalTransform.rotate.cx = -_this.totalTransform.translateX / _this.totalTransform.scale + _this.width / 2;
+            _this.totalTransform.rotate.cy = -_this.totalTransform.translateY / _this.totalTransform.scale + _this.height / 2;
             onZoomed(zoomData, _this.totalTransform);
             onTransform(_this.totalTransform);
         });

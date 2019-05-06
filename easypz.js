@@ -315,8 +315,8 @@ var EasyPZ = /** @class */ (function () {
             zoomData.y = zoomDataT.x * s + zoomDataT.y * c;
             if (zoomData.targetX && zoomData.targetY) {
                 var _a = _this.totalTransform.rotate, cx = _a.cx, cy = _a.cy;
-                zoomData.targetX = (zoomData.targetX - cx) * c - (zoomData.targetY - cy) * s + cx;
-                zoomData.targetY = (zoomData.targetX - cx) * s + (zoomData.targetY - cy) * c + cy;
+                zoomData.targetX = (zoomData.targetX - _this.width / 2) * c - (zoomData.targetY - _this.height / 2) * s + _this.width / 2;
+                zoomData.targetY = (zoomData.targetX - _this.width / 2) * s + (zoomData.targetY - _this.height / 2) * c + _this.height / 2;
             }
             // Zoom either relative to the current transformation, or to the saved snapshot.
             var zoomDataScaleChange = zoomData.scaleChange ? zoomData.scaleChange : 1;

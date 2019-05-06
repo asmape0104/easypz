@@ -401,8 +401,15 @@ export class EasyPZ
             onTransform(this.totalTransform);
         });
         
-        this.onZoomed.subscribe((zoomData: EasyPzZoomData) =>
+        this.onZoomed.subscribe((zoomDataT: EasyPzZoomData) =>
         {
+            let c = Math.cos(-this.totalTransform.rotate.deg * Math.PI / 180);
+            let s = Math.sin(-this.totalTransform.rotate.deg * Math.PI / 180);
+
+            let zoomData = { ...zoomDataT }
+            zoomData.x = zoomDataT.x * c - zoomDataT.y * s;
+            zoomData.y = zoomDataT.x * s + zoomDataT.y * c;
+
             // Zoom either relative to the current transformation, or to the saved snapshot.
             const zoomDataScaleChange = zoomData.scaleChange ? zoomData.scaleChange : 1;
             let relativeTransform = zoomData.absoluteScaleChange ? this.totalTransformSnapshot : this.totalTransform;

@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 function sign(number) {
@@ -296,7 +307,12 @@ var EasyPZ = /** @class */ (function () {
             onPanned(panData, _this.totalTransform);
             onTransform(_this.totalTransform);
         });
-        this.onZoomed.subscribe(function (zoomData) {
+        this.onZoomed.subscribe(function (zoomDataT) {
+            var c = Math.cos(-_this.totalTransform.rotate.deg * Math.PI / 180);
+            var s = Math.sin(-_this.totalTransform.rotate.deg * Math.PI / 180);
+            var zoomData = __assign({}, zoomDataT);
+            zoomData.x = zoomDataT.x * c - zoomDataT.y * s;
+            zoomData.y = zoomDataT.x * s + zoomDataT.y * c;
             // Zoom either relative to the current transformation, or to the saved snapshot.
             var zoomDataScaleChange = zoomData.scaleChange ? zoomData.scaleChange : 1;
             var relativeTransform = zoomData.absoluteScaleChange ? _this.totalTransformSnapshot : _this.totalTransform;

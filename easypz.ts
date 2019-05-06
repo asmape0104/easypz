@@ -394,9 +394,9 @@ export class EasyPZ
             
             this.ensureTransformWithinBounds(transformBeforeScale);
 
-            this.totalTransform.rotate.cx = (-this.totalTransform.translateX + this.width/2) / scale;
-            this.totalTransform.rotate.cy = (-this.totalTransform.translateY + this.height/2) / scale;
-
+            this.totalTransform.rotate.cx = -this.totalTransform.translateX + this.width/2 / this.totalTransform.scale;
+            this.totalTransform.rotate.cy = -this.totalTransform.translateY + this.height/2 / this.totalTransform.scale;
+ 
             onPanned(panData, this.totalTransform);
             onTransform(this.totalTransform);
         });
@@ -453,8 +453,8 @@ export class EasyPZ
             
             this.ensureTransformWithinBounds(transformBeforeScale);
 
-            this.totalTransform.rotate.cx = (-this.totalTransform.translateX + this.width/2) / this.totalTransform.scale;
-            this.totalTransform.rotate.cy = (-this.totalTransform.translateY + this.height/2) / this.totalTransform.scale;
+            this.totalTransform.rotate.cx = -this.totalTransform.translateX + this.width/2 / this.totalTransform.scale;
+            this.totalTransform.rotate.cy = -this.totalTransform.translateY + this.height/2 / this.totalTransform.scale;
             
             onZoomed(zoomData, this.totalTransform);
             onTransform(this.totalTransform);

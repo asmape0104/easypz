@@ -407,12 +407,13 @@ export class EasyPZ
             let s = Math.sin(-this.totalTransform.rotate.deg * Math.PI / 180);
 
             let zoomData = { ...zoomDataT }
-            zoomData.x = zoomDataT.x * c - zoomDataT.y * s;
-            zoomData.y = zoomDataT.x * s + zoomDataT.y * c;
+            zoomData.x = (zoomDataT.x - this.width/2) * c - (zoomDataT.y - this.height/2) * s + this.width/2;
+            zoomData.y = (zoomDataT.x - this.width/2) * s + (zoomDataT.y - this.height/2) * c + this.height/2;
             if (zoomData.targetX && zoomData.targetY) {
                 let {cx, cy} = this.totalTransform.rotate;
-                zoomData.targetX = (zoomData.targetX - this.width/2) * c - (zoomData.targetY - this.height/2) * s + this.width/2;
-                zoomData.targetY = (zoomData.targetX - this.width/2) * s + (zoomData.targetY - this.height/2) * c + this.height/2;
+
+                zoomData.targetX = (zoomDataT.targetX - this.width/2) * c - (zoomDataT.targetY - this.height/2) * s + this.width/2;
+                zoomData.targetY = (zoomDataT.targetX - this.width/2) * s + (zoomDataT.targetY - this.height/2) * c + this.height/2;
             }
 
             // Zoom either relative to the current transformation, or to the saved snapshot.

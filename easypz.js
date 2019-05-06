@@ -311,12 +311,12 @@ var EasyPZ = /** @class */ (function () {
             var c = Math.cos(-_this.totalTransform.rotate.deg * Math.PI / 180);
             var s = Math.sin(-_this.totalTransform.rotate.deg * Math.PI / 180);
             var zoomData = __assign({}, zoomDataT);
-            zoomData.x = zoomDataT.x * c - zoomDataT.y * s;
-            zoomData.y = zoomDataT.x * s + zoomDataT.y * c;
+            zoomData.x = (zoomDataT.x - _this.width / 2) * c - (zoomDataT.y - _this.height / 2) * s + _this.width / 2;
+            zoomData.y = (zoomDataT.x - _this.width / 2) * s + (zoomDataT.y - _this.height / 2) * c + _this.height / 2;
             if (zoomData.targetX && zoomData.targetY) {
                 var _a = _this.totalTransform.rotate, cx = _a.cx, cy = _a.cy;
-                zoomData.targetX = (zoomData.targetX - _this.width / 2) * c - (zoomData.targetY - _this.height / 2) * s + _this.width / 2;
-                zoomData.targetY = (zoomData.targetX - _this.width / 2) * s + (zoomData.targetY - _this.height / 2) * c + _this.height / 2;
+                zoomData.targetX = (zoomDataT.targetX - _this.width / 2) * c - (zoomDataT.targetY - _this.height / 2) * s + _this.width / 2;
+                zoomData.targetY = (zoomDataT.targetX - _this.width / 2) * s + (zoomDataT.targetY - _this.height / 2) * c + _this.height / 2;
             }
             // Zoom either relative to the current transformation, or to the saved snapshot.
             var zoomDataScaleChange = zoomData.scaleChange ? zoomData.scaleChange : 1;

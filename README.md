@@ -1,6 +1,6 @@
-# EasyPZ as
+# EasyPZ-AS
 
-** This is an unofficial extension of EasyPZ by asmape0104. EasyPZ is originally provided by [michaschwab](https://www.npmjs.com/package/easypz)**
+** Notice: This is an unofficial extension of EasyPZ by asmape0104. EasyPZ is originally provided by [michaschwab](https://www.npmjs.com/package/easypz) **
 
 ## New Feature
 - CommonJS style export

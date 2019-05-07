@@ -161,8 +161,6 @@ export class EasyPZLoader
     }
 }
 
-
-
 export class EzEventEmitter<T>
 {
     subscribers : ((value: T) => void)[] = [];
@@ -410,8 +408,6 @@ export class EasyPZ
             zoomData.x = (zoomDataT.x - this.width/2) * c - (zoomDataT.y - this.height/2) * s + this.width/2;
             zoomData.y = (zoomDataT.x - this.width/2) * s + (zoomDataT.y - this.height/2) * c + this.height/2;
             if (zoomData.targetX && zoomData.targetY) {
-                let {cx, cy} = this.totalTransform.rotate;
-
                 zoomData.targetX = (zoomDataT.targetX - this.width/2) * c - (zoomDataT.targetY - this.height/2) * s + this.width/2;
                 zoomData.targetY = (zoomDataT.targetX - this.width/2) * s + (zoomDataT.targetY - this.height/2) * c + this.height/2;
             }

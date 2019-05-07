@@ -314,7 +314,6 @@ var EasyPZ = /** @class */ (function () {
             zoomData.x = (zoomDataT.x - _this.width / 2) * c - (zoomDataT.y - _this.height / 2) * s + _this.width / 2;
             zoomData.y = (zoomDataT.x - _this.width / 2) * s + (zoomDataT.y - _this.height / 2) * c + _this.height / 2;
             if (zoomData.targetX && zoomData.targetY) {
-                var _a = _this.totalTransform.rotate, cx = _a.cx, cy = _a.cy;
                 zoomData.targetX = (zoomDataT.targetX - _this.width / 2) * c - (zoomDataT.targetY - _this.height / 2) * s + _this.width / 2;
                 zoomData.targetY = (zoomDataT.targetX - _this.width / 2) * s + (zoomDataT.targetY - _this.height / 2) * c + _this.height / 2;
             }

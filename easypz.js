@@ -293,7 +293,8 @@ var EasyPZ = /** @class */ (function () {
     };
     EasyPZ.prototype.trackTotalTransformation = function (onTransform, onPanned, onZoomed, onRotated, transformBeforeScale) {
         var _this = this;
-        this.onPanned.subscribe(function (panData) {
+        /** pan処理 */
+        var pan = function (panData) {
             var scale = transformBeforeScale ? 1 : _this.totalTransform.scale;
             var xdiff = panData.x / scale;
             var ydiff = panData.y / scale;
@@ -304,6 +305,9 @@ var EasyPZ = /** @class */ (function () {
             _this.ensureTransformWithinBounds(transformBeforeScale);
             _this.totalTransform.rotate.cx = -_this.totalTransform.translateX + _this.width / 2 / _this.totalTransform.scale;
             _this.totalTransform.rotate.cy = -_this.totalTransform.translateY + _this.height / 2 / _this.totalTransform.scale;
+        };
+        this.onPanned.subscribe(function (panData) {
+            pan(panData);
             onPanned(panData, _this.totalTransform);
             onTransform(_this.totalTransform);
         });
@@ -352,6 +356,13 @@ var EasyPZ = /** @class */ (function () {
         this.onRotated.subscribe(function (rotateData) {
             if (rotateData === void 0) { rotateData = {}; }
             var degdiff = rotateData.deg || 0;
+            var c = Math.cos(degdiff * Math.PI / 180);
+            var s = Math.sin(degdiff * Math.PI / 180);
+            var xdiff = rotateData.cx || 0;
+            var ydiff = rotateData.cy || 0;
+            var centerXdiff = ((-xdiff) * c + (-ydiff) * s);
+            var centerYdiff = ((-xdiff) * -s + (-ydiff) * c);
+            pan({ x: (xdiff + centerXdiff), y: (ydiff + centerYdiff) });
             _this.totalTransform.rotate.deg = (_this.totalTransform.rotate.deg + degdiff + 360) % 360;
             onRotated(rotateData, _this.totalTransform);
             onTransform(_this.totalTransform);
@@ -1394,6 +1405,39 @@ EasyPZ.addMode(function (easypz) {
         },
         onClickTouchEnd: function () {
             mode.active = false;
+        }
+    };
+    return mode;
+});
+/** Pinch Rotate */
+EasyPZ.addMode(function (easypz) {
+    var mode = {
+        ids: ['PINCH_ROTATE'],
+        settings: {},
+        data: {
+            posStart1: null,
+            posStart2: null
+        },
+        onClickTouch: function (eventData) {
+            if (eventData.event.touches && eventData.event.touches.length > 1) {
+                mode.data.posStart1 = easypz.getRelativePosition(eventData.event.touches[0].clientX, eventData.event.touches[0].clientY);
+                mode.data.posStart2 = easypz.getRelativePosition(eventData.event.touches[1].clientX, eventData.event.touches[1].clientY);
+                easypz.resetAbsoluteScale.emit(null);
+            }
+        },
+        onMove: function (eventData) {
+            if (mode.data.posStart1 && mode.data.posStart2) {
+                var pos1 = easypz.getRelativePosition(eventData.event.touches[0].clientX, eventData.event.touches[0].clientY);
+                var pos2 = easypz.getRelativePosition(eventData.event.touches[1].clientX, eventData.event.touches[1].clientY);
+                // y = ax + b
+                // y = cx + d
+                var a = (pos2.y - pos1.y) / (pos2.x - pos1.x);
+                var b = (pos2.x * pos1.y - pos1.x * pos2.y) / (pos2.x - pos1[0]);
+            }
+        },
+        onClickTouchEnd: function (eventData) {
+            mode.data.posStart1 = null;
+            mode.data.posStart2 = null;
         }
     };
     return mode;

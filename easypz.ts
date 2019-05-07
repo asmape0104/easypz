@@ -377,9 +377,8 @@ export class EasyPZ
     
     private trackTotalTransformation(onTransform, onPanned, onZoomed, onRotated, transformBeforeScale)
     {
-        this.onPanned.subscribe((panData: EasyPzPanData) =>
-        {
-
+        /** pan処理 */
+        const pan = (panData: EasyPzPanData) => {
             let scale = transformBeforeScale ? 1 : this.totalTransform.scale;
 
             let xdiff = panData.x / scale;
@@ -394,6 +393,11 @@ export class EasyPZ
 
             this.totalTransform.rotate.cx = -this.totalTransform.translateX + this.width/2 / this.totalTransform.scale;
             this.totalTransform.rotate.cy = -this.totalTransform.translateY + this.height/2 / this.totalTransform.scale;
+        }
+
+        this.onPanned.subscribe((panData: EasyPzPanData) =>
+        {
+            pan(panData);
  
             onPanned(panData, this.totalTransform);
             onTransform(this.totalTransform);
@@ -459,6 +463,15 @@ export class EasyPZ
 
         this.onRotated.subscribe((rotateData: EasyPzRotateData = {}) => {
             let degdiff = rotateData.deg || 0;
+            let c = Math.cos(degdiff * Math.PI / 180);
+            let s = Math.sin(degdiff * Math.PI / 180);
+            let xdiff = rotateData.cx || 0;
+            let ydiff = rotateData.cy || 0;
+
+            let centerXdiff = ((-xdiff) * c + (-ydiff) * s);
+            let centerYdiff = ((-xdiff) * -s + (-ydiff) * c);
+
+            pan({x: (xdiff + centerXdiff), y: (ydiff + centerYdiff)});
 
             this.totalTransform.rotate.deg = (this.totalTransform.rotate.deg + degdiff + 360) % 360;
 
@@ -1899,6 +1912,42 @@ EasyPZ.addMode((easypz: EasyPZ) =>
     return mode;
 });
 
+/** Pinch Rotate */
+EasyPZ.addMode((easypz: EasyPZ) => {
+    const mode = {
+        ids: ['PINCH_ROTATE'],
+        settings: {},
+        data: {
+            posStart1: null,
+            posStart2: null
+        },
+        onClickTouch(eventData: EasyPzCallbackData) {
+            if(eventData.event.touches && eventData.event.touches.length > 1)
+            {
+                mode.data.posStart1 = easypz.getRelativePosition(eventData.event.touches[0].clientX, eventData.event.touches[0].clientY);
+                mode.data.posStart2 = easypz.getRelativePosition(eventData.event.touches[1].clientX, eventData.event.touches[1].clientY);
+                easypz.resetAbsoluteScale.emit(null);
+            }
+        },
+        onMove(eventData: EasyPzCallbackData) {
+            if(mode.data.posStart1 && mode.data.posStart2) {
+                const pos1 = easypz.getRelativePosition(eventData.event.touches[0].clientX, eventData.event.touches[0].clientY);
+                const pos2 = easypz.getRelativePosition(eventData.event.touches[1].clientX, eventData.event.touches[1].clientY);
+
+                // y = ax + b
+                // y = cx + d
+                let a = (pos2.y - pos1.y) / (pos2.x - pos1.x);
+                let b = (pos2.x*pos1.y - pos1.x*pos2.y) / (pos2.x - pos1[0])
+            }
+        },
+        onClickTouchEnd(eventData: EasyPzCallbackData) {
+            mode.data.posStart1 = null;
+            mode.data.posStart2 = null;
+        }
+    };
+
+    return mode;
+});
 
 // const easyPZLoader = new EasyPZLoader();
 // easyPZLoader.checkElements();

@@ -1,3 +1,14 @@
+# EasyPZ as
+
+** This is an unofficial extension of EasyPZ by asmape0104. EasyPZ is originally provided by [michaschwab](https://www.npmjs.com/package/easypz)**
+
+## New Feature
+- CommonJS style export
+- Zoom speed adjustment
+- Rotate (Beta)
+
+The following is the original readme.
+
 # EasyPZ
 **Use this Javascript library to make your web visualization interactive 
 via pan and zoom, for mobile and desktop!**

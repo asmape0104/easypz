@@ -1,6 +1,6 @@
 {
-  "name": "easypz",
-  "version": "1.1.9",
+  "name": "easypz-as",
+  "version": "1.0.0",
   "description": "Simple and extendable pan and zoom library for 1D and 2D content and visualizations, on mobile and desktop.",
   "main": "easypz.js",
   "types": "easypz.d.ts",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/michaschwab/easypz.git"
+    "url": "git+https://github.com/asmape0104/easypz.git"
   },
   "keywords": [
     "pan",
@@ -27,7 +27,7 @@
   "author": "Michail Schwab",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/michaschwab/easypz/issues"
+    "url": "https://github.com/asmape0104/easypz/issues"
   },
   "homepage": "https://easypz.io"
 }

@@ -1429,6 +1429,9 @@ EasyPZ.addMode(function (easypz) {
             if (mode.data.posStart1 && mode.data.posStart2) {
                 var pos1 = easypz.getRelativePosition(eventData.event.touches[0].clientX, eventData.event.touches[0].clientY);
                 var pos2 = easypz.getRelativePosition(eventData.event.touches[1].clientX, eventData.event.touches[1].clientY);
+                if (!(pos1 && pos2)) {
+                    return;
+                }
                 var _a = mode.data, posStart1 = _a.posStart1, posStart2 = _a.posStart2;
                 // y = ax + b
                 // y = cx + d

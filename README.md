@@ -1,11 +1,15 @@
 # EasyPZ-AS
 
-** Notice: This is an unofficial extension of EasyPZ by asmape0104. EasyPZ is originally provided by [michaschwab](https://www.npmjs.com/package/easypz) **
+**Notice: This is an unofficial extension of EasyPZ by asmape0104. EasyPZ is originally provided by [michaschwab](https://www.npmjs.com/package/easypz)**
 
 ## New Feature
+ver 1.0.0
 - CommonJS style export
 - Zoom speed adjustment
-- Rotate (Beta)
+- ~~Rotate (Beta)~~
+
+ver 1.0.1
+- Rotate (Stable)
 
 The following is the original readme.
 

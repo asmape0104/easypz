@@ -1429,10 +1429,21 @@ EasyPZ.addMode(function (easypz) {
             if (mode.data.posStart1 && mode.data.posStart2) {
                 var pos1 = easypz.getRelativePosition(eventData.event.touches[0].clientX, eventData.event.touches[0].clientY);
                 var pos2 = easypz.getRelativePosition(eventData.event.touches[1].clientX, eventData.event.touches[1].clientY);
+                var _a = mode.data, posStart1 = _a.posStart1, posStart2 = _a.posStart2;
                 // y = ax + b
                 // y = cx + d
                 var a = (pos2.y - pos1.y) / (pos2.x - pos1.x);
                 var b = (pos2.x * pos1.y - pos1.x * pos2.y) / (pos2.x - pos1[0]);
+                var c = (posStart2.y - posStart1.y) / (posStart2.x - posStart1.x);
+                var d = (posStart2.x * posStart1.y - posStart1.x * posStart2.y) / (posStart2.x - posStart1[0]);
+                if (a !== c) {
+                    var x = (d - b) / (a - c);
+                    var y = (a * d - b * c) / (a - c);
+                    var deg = (-Math.atan2(posStart2.y - posStart1.y, posStart2.x - posStart1.x) + Math.atan2(pos2.y - pos1.y, pos2.x - pos1.x)) * 180 / Math.PI;
+                    easypz.onRotated.emit({ deg: deg, cx: x, cy: y });
+                    mode.data.posStart1 = pos1;
+                    mode.data.posStart2 = pos2;
+                }
             }
         },
         onClickTouchEnd: function (eventData) {
